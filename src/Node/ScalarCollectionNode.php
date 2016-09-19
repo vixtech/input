@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Node;
 
@@ -7,7 +6,7 @@ use Linio\Component\Input\Exception\InvalidConstraintException;
 
 class ScalarCollectionNode extends BaseNode
 {
-    public function getValue(string $field, $value)
+    public function getValue($field, $value)
     {
         $this->checkConstraints($field, $value);
 

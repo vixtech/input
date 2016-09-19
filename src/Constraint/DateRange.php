@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Constraint;
 
@@ -15,15 +14,19 @@ class DateRange extends Constraint
      */
     protected $max;
 
-    public function __construct(string $min, string $max, string $errorMessage = null)
+    public function __construct($min, $max, $errorMessage = null)
     {
         $this->min = $min;
         $this->max = $max;
 
-        $this->setErrorMessage($errorMessage ?? sprintf('Date is not between "%s" and "%s"', $this->min, $this->max));
+        $errorMessage = $errorMessage ?
+            $errorMessage :
+            sprintf('Date is not between "%s" and "%s"', $this->min, $this->max);
+
+        $this->setErrorMessage($errorMessage);
     }
 
-    public function validate($content): bool
+    public function validate($content)
     {
         $date = new \DateTime($content);
 

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Constraint;
 
@@ -10,14 +9,14 @@ class Pattern extends Constraint
      */
     protected $pattern;
 
-    public function __construct(string $pattern, string $errorMessage = null)
+    public function __construct($pattern, $errorMessage = null)
     {
         $this->pattern = $pattern;
 
-        $this->setErrorMessage($errorMessage ?? 'Required pattern does not match');
+        $this->setErrorMessage($errorMessage ? $errorMessage : 'Required pattern does not match');
     }
 
-    public function validate($content): bool
+    public function validate($content)
     {
         if (!$content) {
             return false;

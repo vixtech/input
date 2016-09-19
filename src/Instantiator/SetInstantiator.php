@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Instantiator;
 
@@ -7,7 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 
 class SetInstantiator implements InstantiatorInterface
 {
-    public function instantiate(string $class, array $data)
+    public function instantiate($class, array $data)
     {
         $object = new $class();
 

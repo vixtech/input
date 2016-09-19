@@ -1,16 +1,15 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Constraint;
 
 class NotNull extends Constraint
 {
-    public function __construct(string $errorMessage = null)
+    public function __construct($errorMessage = null)
     {
-        $this->setErrorMessage($errorMessage ?? 'Unexpected empty content');
+        $this->setErrorMessage($errorMessage ? $errorMessage : 'Unexpected empty content');
     }
 
-    public function validate($content): bool
+    public function validate($content)
     {
         if ($content) {
             $content = trim($content);

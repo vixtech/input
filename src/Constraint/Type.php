@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Constraint;
 
@@ -10,14 +9,14 @@ class Type extends Constraint
      */
     protected $type;
 
-    public function __construct(string $type, string $errorMessage = null)
+    public function __construct($type, $errorMessage = null)
     {
         $this->type = $type;
 
-        $this->setErrorMessage($errorMessage ?? 'Value does not match type: ' . $this->type);
+        $this->setErrorMessage($errorMessage ? $errorMessage : 'Value does not match type: ' . $this->type);
     }
 
-    public function validate($content): bool
+    public function validate($content)
     {
         return call_user_func('is_' . $this->type, $content);
     }

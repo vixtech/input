@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input;
 
@@ -31,26 +30,26 @@ abstract class InputHandler
     public function __construct(TypeHandler $typeHandler = null)
     {
         $this->root = new BaseNode();
-        $this->typeHandler = $typeHandler ?? new TypeHandler();
+        $this->typeHandler = $typeHandler ? $typeHandler : new TypeHandler();
         $this->root->setTypeHandler($this->typeHandler);
     }
 
-    public function add(string $key, string $type, array $options = []): BaseNode
+    public function add($key, $type, array $options = [])
     {
         return $this->root->add($key, $type, $options);
     }
 
-    public function remove(string $key)
+    public function remove($key)
     {
         $this->root->remove($key);
     }
 
-    public function getRoot(): BaseNode
+    public function getRoot()
     {
         return $this->root;
     }
 
-    public function setRootType(string $type)
+    public function setRootType($type)
     {
         $this->root = $this->typeHandler->getType($type);
     }
@@ -86,17 +85,17 @@ abstract class InputHandler
         return isset($this->output[$index]);
     }
 
-    public function isValid(): bool
+    public function isValid()
     {
         return empty($this->errors);
     }
 
-    public function getErrors(): array
+    public function getErrors()
     {
         return $this->errors;
     }
 
-    public function getErrorsAsString(): string
+    public function getErrorsAsString()
     {
         return implode(', ', $this->errors);
     }

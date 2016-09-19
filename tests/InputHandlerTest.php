@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input;
 
@@ -36,7 +35,7 @@ class TestUser
         $this->age = $age;
     }
 
-    public function getRelated(): TestUser
+    public function getRelated()
     {
         return $this->related;
     }
@@ -46,7 +45,7 @@ class TestUser
         $this->related = $related;
     }
 
-    public function setIsActive(bool $isActive)
+    public function setIsActive($isActive)
     {
         $this->isActive = $isActive;
     }

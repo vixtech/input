@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input;
 
@@ -45,12 +44,12 @@ class TypeHandler
         $this->defaultInstantiator = new SetInstantiator();
     }
 
-    public function addType(string $name, string $class)
+    public function addType($name, $class)
     {
         $this->types[$name] = $class;
     }
 
-    public function getType(string $name): BaseNode
+    public function getType($name)
     {
         if (isset($this->types[$name])) {
             $type = new $this->types[$name]();
@@ -88,12 +87,12 @@ class TypeHandler
         throw new \InvalidArgumentException('Unknown type name: ' . $name);
     }
 
-    protected function isClassType(string $type): bool
+    protected function isClassType($type)
     {
         return (class_exists($type) || interface_exists($type)) && $type != 'datetime';
     }
 
-    protected function isCollectionType(string $type): bool
+    protected function isCollectionType($type)
     {
         $collectionType = $this->getCollectionType($type);
 
@@ -104,7 +103,7 @@ class TypeHandler
         return true;
     }
 
-    protected function isScalarCollectionType(string $type): bool
+    protected function isScalarCollectionType($type)
     {
         $collectionType = $this->getCollectionType($type);
 
@@ -115,7 +114,7 @@ class TypeHandler
         return true;
     }
 
-    protected function getCollectionType(string $type): string
+    protected function getCollectionType($type)
     {
         $pos = strrpos($type, '[]');
 

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types = 1);
 
 namespace Linio\Component\Input\Constraint;
 
@@ -15,17 +14,19 @@ class StringSize extends Constraint
      */
     protected $maxSize;
 
-    public function __construct(int $minSize, int $maxSize = PHP_INT_MAX, string $errorMessage = null)
+    public function __construct($minSize, $maxSize = PHP_INT_MAX, $errorMessage = null)
     {
         $this->minSize = $minSize;
         $this->maxSize = $maxSize;
 
-        $this->setErrorMessage(
-            $errorMessage ?? sprintf('Content out of min/max limit sizes [%s, %s]', $this->minSize, $this->maxSize)
-        );
+        $errorMessage = $errorMessage ?
+            $errorMessage :
+            sprintf('Content out of min/max limit sizes [%s, %s]', $this->minSize, $this->maxSize);
+
+        $this->setErrorMessage($errorMessage);
     }
 
-    public function validate($content): bool
+    public function validate($content)
     {
         if ($content === null) {
             return false;

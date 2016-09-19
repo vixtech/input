@@ -1,16 +1,15 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Constraint;
 
 class GuidValue extends Constraint
 {
-    public function __construct(string $errorMessage = null)
+    public function __construct($errorMessage = null)
     {
-        $this->setErrorMessage($errorMessage ?? 'Invalid GUID format');
+        $this->setErrorMessage($errorMessage ? $errorMessage : 'Invalid GUID format');
     }
 
-    public function validate($content): bool
+    public function validate($content)
     {
         if (!is_string($content) || strlen($content) != 36) {
             return false;

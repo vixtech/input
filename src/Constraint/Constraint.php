@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Constraint;
 
@@ -10,12 +9,12 @@ abstract class Constraint implements ConstraintInterface
      */
     protected $errorMessage;
 
-    public function getErrorMessage(string $field): string
+    public function getErrorMessage($field)
     {
         return sprintf('[%s] %s', $field, $this->errorMessage);
     }
 
-    public function setErrorMessage(string $errorMessage)
+    public function setErrorMessage($errorMessage)
     {
         $this->errorMessage = $errorMessage;
     }

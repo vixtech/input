@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Exception;
 
@@ -10,12 +9,12 @@ class RequiredFieldException extends \RuntimeException
      */
     protected $field;
 
-    public function __construct(string $field)
+    public function __construct($field)
     {
         $this->field = $field;
     }
 
-    public function getField(): string
+    public function getField()
     {
         return $this->field;
     }

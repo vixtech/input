@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Linio\Component\Input\Node;
 
@@ -83,12 +82,12 @@ class BaseNode
         $this->typeHandler = $typeHandler;
     }
 
-    public function setType(string $type)
+    public function setType($type)
     {
         $this->type = $type;
     }
 
-    public function setRequired(bool $required)
+    public function setRequired($required)
     {
         $this->required = $required;
     }
@@ -98,7 +97,7 @@ class BaseNode
         $this->default = $default;
     }
 
-    public function setAllowNull(bool $allowNull)
+    public function setAllowNull($allowNull)
     {
         $this->allowNull = $allowNull;
     }
@@ -108,12 +107,12 @@ class BaseNode
         return $this->default;
     }
 
-    public function hasDefault(): bool
+    public function hasDefault()
     {
         return (bool) $this->default;
     }
 
-    public function add(string $key, string $type, array $options = []): BaseNode
+    public function add($key, $type, array $options = [])
     {
         $child = $this->typeHandler->getType($type);
 
@@ -155,7 +154,7 @@ class BaseNode
         return $child;
     }
 
-    public function remove(string $key)
+    public function remove($key)
     {
         unset($this->children[$key]);
     }
@@ -163,17 +162,17 @@ class BaseNode
     /**
      * @return BaseNode[]
      */
-    public function getChildren(): array
+    public function getChildren()
     {
         return $this->children;
     }
 
-    public function hasChildren(): bool
+    public function hasChildren()
     {
         return !empty($this->children);
     }
 
-    public function isRequired(): bool
+    public function isRequired()
     {
         if ($this->hasDefault()) {
             return false;
@@ -182,12 +181,12 @@ class BaseNode
         return $this->required;
     }
 
-    public function allowNull(): bool
+    public function allowNull()
     {
         return $this->allowNull;
     }
 
-    public function getValue(string $field, $value)
+    public function getValue($field, $value)
     {
         if ($this->allowNull() && $value === null) {
             return $value;
@@ -229,7 +228,7 @@ class BaseNode
         return $result;
     }
 
-    protected function checkConstraints(string $field, $value)
+    protected function checkConstraints($field, $value)
     {
         foreach ($this->constraints as $constraint) {
             if (!$constraint->validate($value)) {
