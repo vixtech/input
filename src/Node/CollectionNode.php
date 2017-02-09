@@ -13,7 +13,11 @@ class CollectionNode extends BaseNode
         $items = [];
 
         foreach ($value as $collectionValue) {
-            $items[] = $this->instantiator->instantiate($this->type, $collectionValue);
+            if ($this->transformer) {
+                $items[] = $this->transformer->transform($collectionValue);
+            } else {
+                $items[] = $this->instantiator->instantiate($this->type, $collectionValue);
+            }
         }
 
         return $items;
