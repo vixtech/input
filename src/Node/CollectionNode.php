@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Linio\Component\Input\Node;
 
-use Linio\Component\Input\Exception\RequiredFieldException;
 use Linio\Component\Input\Exception\InvalidConstraintException;
+use Linio\Component\Input\Exception\RequiredFieldException;
 
 class CollectionNode extends BaseNode
 {
@@ -31,8 +31,8 @@ class CollectionNode extends BaseNode
         }
 
         foreach ($input as $inputItem) {
-            if (! is_array($inputItem)) {
-                throw new InvalidConstraintException(sprintf('Value does not match type collection'));
+            if (!is_array($inputItem)) {
+                throw new InvalidConstraintException(sprintf('Value does not match expected type object i.e "{}"'));
             }
 
             $itemResult = [];

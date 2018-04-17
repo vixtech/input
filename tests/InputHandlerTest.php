@@ -578,14 +578,16 @@ class InputHandlerTest extends TestCase
         $errors = $inputHandler->getErrors();
 
         $this->assertFalse($inputHandler->isValid());
-        $this->assertEquals('Value does not match type collection', $errors[0]);
+        $this->assertEquals('Value does not match expected type object i.e "{}"', $errors[0]);
 
         $input = [
-            'fans' => [[
-                'name' => 'A',
-                'age' => 18,
-                'birthday' => '2000-01-01',
-            ]],
+            'fans' => [
+                [
+                    'name' => 'A',
+                    'age' => 18,
+                    'birthday' => '2000-01-01',
+                ],
+            ],
         ];
 
         $inputHandler = new TestArrayOfObject();
