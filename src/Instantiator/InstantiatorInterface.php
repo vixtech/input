@@ -6,5 +6,5 @@ namespace Linio\Component\Input\Instantiator;
 
 interface InstantiatorInterface
 {
-    public function instantiate(string $class, array $data);
+    public function instantiate(string $class, ?array $data);
 }

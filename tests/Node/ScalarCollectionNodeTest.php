@@ -12,7 +12,7 @@ use Linio\Component\Input\Transformer\DateTimeTransformer;
 
 class ScalarCollectionNodeTest extends TestCase
 {
-    public function testIsGettingValue()
+    public function testIsGettingValue(): void
     {
         $typeHandler = $this->prophesize(TypeHandler::class);
         $typeHandler->getType('int')->willReturn(new ScalarCollectionNode());
@@ -24,7 +24,7 @@ class ScalarCollectionNodeTest extends TestCase
         $this->assertEquals([15, 25, 36], $child->getValue('foobar', [15, 25, 36]));
     }
 
-    public function testIsDetectingBadTypes()
+    public function testIsDetectingBadTypes(): void
     {
         $typeHandler = $this->prophesize(TypeHandler::class);
         $typeHandler->getType('int')->willReturn(new ScalarCollectionNode());
@@ -39,7 +39,7 @@ class ScalarCollectionNodeTest extends TestCase
         $child->getValue('foobar', [15, '25']);
     }
 
-    public function testIsCheckingConstraintsOnValue()
+    public function testIsCheckingConstraintsOnValue(): void
     {
         $typeHandler = $this->prophesize(TypeHandler::class);
         $typeHandler->getType('int')->willReturn(new ScalarCollectionNode());
@@ -57,7 +57,7 @@ class ScalarCollectionNodeTest extends TestCase
         $child->getValue('foobar', [15, 25, 36]);
     }
 
-    public function testIsCheckingIfIsIterable()
+    public function testIsCheckingIfIsIterable(): void
     {
         $typeHandler = $this->prophesize(TypeHandler::class);
         $typeHandler->getType('int[]')->willReturn(new ScalarCollectionNode());

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Linio\Component\Input;
 
+use Linio\Component\Input\Constraint\Email;
+use Linio\Component\Input\Constraint\Enum;
 use Linio\Component\Input\Constraint\Range;
+use Linio\Component\Input\Constraint\StringSize;
 use Linio\Component\Input\Instantiator\InstantiatorInterface;
 use Linio\Component\Input\Instantiator\PropertyInstantiator;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +26,7 @@ class TestUser
         return $this->name;
     }
 
-    public function setName($name)
+    public function setName($name): void
     {
         $this->name = $name;
     }
@@ -33,7 +36,7 @@ class TestUser
         return $this->age;
     }
 
-    public function setAge($age)
+    public function setAge($age): void
     {
         $this->age = $age;
     }
@@ -43,17 +46,17 @@ class TestUser
         return $this->related;
     }
 
-    public function setRelated(TestUser $related)
+    public function setRelated(TestUser $related): void
     {
         $this->related = $related;
     }
 
-    public function setIsActive(bool $isActive)
+    public function setIsActive(bool $isActive): void
     {
         $this->isActive = $isActive;
     }
 
-    public function setBirthday(\DateTime $birthday)
+    public function setBirthday(\DateTime $birthday): void
     {
         $this->birthday = $birthday;
     }
@@ -61,7 +64,7 @@ class TestUser
 
 class TestInputHandler extends InputHandler
 {
-    public function define()
+    public function define(): void
     {
         $this->add('title', 'string');
         $this->add('size', 'int');
@@ -91,7 +94,7 @@ class TestInputHandler extends InputHandler
 
 class TestRecursiveInputHandler extends InputHandler
 {
-    public function define()
+    public function define(): void
     {
         $this->add('title', 'string');
         $this->add('size', 'int');
@@ -155,9 +158,66 @@ class TestArrayOfObject extends InputHandler
     }
 }
 
+class TestRecursiveInputHandlerExplicit extends InputHandler
+{
+    public function define(): void
+    {
+        $this->add('title', 'string');
+        $this->add('size', 'int');
+        $this->add('child', \stdClass::class, ['instantiator' => new PropertyInstantiator()], new TestInputHandler());
+    }
+}
+
+class TestNullableInputHandler extends InputHandler
+{
+    public function define(): void
+    {
+        $this->add('name', 'string');
+        $this->add('address', 'string', ['allow_null' => true]);
+    }
+}
+
+class TestNullableRecursiveInputHandler extends InputHandler
+{
+    public function define(): void
+    {
+        $this->add('type', 'string');
+        $this->add('data', \stdClass::class, [
+            'handler' => new TestNullableInputHandler(),
+            'instantiator' => new PropertyInstantiator(),
+            'allow_null' => true,
+        ]);
+    }
+}
+
+class TestInputHandlerCascade extends InputHandler
+{
+    public function define(): void
+    {
+        $this->add('name', 'string')
+            ->setRequired(true)
+            ->addConstraint(new StringSize(1, 80));
+
+        $this->add('age', 'int')
+            ->setRequired(true)
+            ->addConstraint(new Range(1, 99));
+
+        $this->add('gender', 'string')
+            ->setRequired(true)
+            ->addConstraint(new Enum(['male', 'female', 'other']));
+
+        $this->add('birthday', 'datetime')
+            ->setRequired(false);
+
+        $this->add('email', 'string')
+            ->setRequired(false)
+            ->addConstraint(new Email());
+    }
+}
+
 class InputHandlerTest extends TestCase
 {
-    public function testIsHandlingDefaults()
+    public function testIsHandlingDefaults(): void
     {
         $input = [
             'user' => [
@@ -177,7 +237,7 @@ class InputHandlerTest extends TestCase
         $this->assertEquals(1, $inputHandler->getData('user')->getId());
     }
 
-    public function testIsHandlingBasicInput()
+    public function testIsHandlingBasicInput(): void
     {
         $input = [
             'title' => 'Foobar',
@@ -265,7 +325,7 @@ class InputHandlerTest extends TestCase
         $this->assertEquals([$fanA, $fanB, $fanC], $inputHandler->getData('fans'));
     }
 
-    public function testIsHandlingErrors()
+    public function testIsHandlingErrors(): void
     {
         $input = [
             'size' => '35',
@@ -313,7 +373,7 @@ class InputHandlerTest extends TestCase
         $this->assertEquals('Missing required field: title', $inputHandler->getErrorsAsString());
     }
 
-    public function testIsHandlingTypeJuggling()
+    public function testIsHandlingTypeJuggling(): void
     {
         $input = [
             'title' => '',
@@ -364,7 +424,7 @@ class InputHandlerTest extends TestCase
         $this->assertFalse($inputHandler->getData('author')->isActive);
     }
 
-    public function testIsHandlingInputValidationWithInstantiator()
+    public function testIsHandlingInputValidationWithInstantiator(): void
     {
         $input = [
             'title' => 'Foobar',
@@ -422,7 +482,7 @@ class InputHandlerTest extends TestCase
         ], $inputHandler->getErrors());
     }
 
-    public function testIsHandlingInputWithRecursiveHandler()
+    public function testIsHandlingInputWithRecursiveHandler(): void
     {
         $input = [
             'title' => 'Barfoo',
@@ -518,7 +578,103 @@ class InputHandlerTest extends TestCase
         $this->assertEquals([$fanA, $fanB, $fanC], $child->fans);
     }
 
-    public function testOverride()
+    public function testIsHandlingInputWithRecursiveHandlerExplicit(): void
+    {
+        $input = [
+            'title' => 'Barfoo',
+            'size' => 20,
+            'child' => [
+                'title' => 'Foobar',
+                'size' => 35,
+                'dimensions' => [11, 22, 33],
+                'date' => '2015-01-01 22:50',
+                'metadata' => [
+                    'foo' => 'bar',
+                ],
+                'simple' => [
+                    'date' => '2015-01-01 22:50',
+                ],
+                'user' => [
+                    'name' => false,
+                    'age' => '28',
+                ],
+                'author' => [
+                    'name' => 'Barfoo',
+                    'age' => 28,
+                    'related' => [
+                        'name' => 'Barfoo',
+                        'age' => 28,
+                    ],
+                ],
+                'fans' => [
+                    [
+                        'name' => 'A',
+                        'age' => 18,
+                        'birthday' => '2000-01-01',
+                    ],
+                    [
+                        'name' => 'B',
+                        'age' => 28,
+                        'birthday' => '2000-01-02',
+                    ],
+                    [
+                        'name' => 'C',
+                        'age' => 38,
+                        'birthday' => '2000-01-03',
+                    ],
+                ],
+            ],
+        ];
+
+        $inputHandler = new TestRecursiveInputHandlerExplicit();
+        $inputHandler->bind($input);
+        $this->assertTrue($inputHandler->isValid());
+
+        // Basic fields
+        $this->assertEquals('Barfoo', $inputHandler->getData('title'));
+        $this->assertEquals(20, $inputHandler->getData('size'));
+        /** @var \stdClass $child */
+        $child = $inputHandler->getData('child');
+
+        // Scalar collection
+        $this->assertEquals([11, 22, 33], $child->dimensions);
+
+        // Transformer
+        $this->assertEquals(new \DateTime('2015-01-01 22:50'), $child->date);
+
+        // Mixed array
+        $this->assertEquals(['foo' => 'bar'], $child->metadata);
+
+        // Typed array
+        $this->assertEquals(['title' => 'Barfoo', 'size' => 15, 'date' => new \DateTime('2015-01-01 22:50')], $child->simple);
+
+        // Object and nested object
+        $related = new TestUser();
+        $related->setName('Barfoo');
+        $related->setAge(28);
+        $author = new TestUser();
+        $author->setName('Barfoo');
+        $author->setAge(28);
+        $author->setRelated($related);
+        $this->assertEquals($author, $child->author);
+
+        // Object collection
+        $fanA = new TestUser();
+        $fanA->setName('A');
+        $fanA->setAge(18);
+        $fanA->setBirthday(new \DateTime('2000-01-01'));
+        $fanB = new TestUser();
+        $fanB->setName('B');
+        $fanB->setAge(28);
+        $fanB->setBirthday(new \DateTime('2000-01-02'));
+        $fanC = new TestUser();
+        $fanC->setName('C');
+        $fanC->setAge(38);
+        $fanC->setBirthday(new \DateTime('2000-01-03'));
+        $this->assertEquals([$fanA, $fanB, $fanC], $child->fans);
+    }
+
+    public function testOverride(): void
     {
         $input = [
             'price' => 'igor',
@@ -548,10 +704,8 @@ class InputHandlerTest extends TestCase
 
     /**
      * @dataProvider invalidDateProvider
-     *
-     * @param mixed $datetime
      */
-    public function testDatetimeInvalidDatetimeInput($datetime)
+    public function testDatetimeInvalidDatetimeInput($datetime): void
     {
         $input = [
             'date' => $datetime,
@@ -597,11 +751,60 @@ class InputHandlerTest extends TestCase
 
         $this->assertTrue($inputHandler->isValid());
     }
+
+    public function testIsHandlingInputWithNullValues(): void
+    {
+        $input = [
+            'type' => 'buyers',
+            'data' => [
+                'name' => 'John Doe',
+                'address' => null,
+            ],
+        ];
+
+        $inputHandler = new TestNullableRecursiveInputHandler();
+        $inputHandler->bind($input);
+
+        $this->assertTrue($inputHandler->isValid());
+
+        $data = $inputHandler->getData('data');
+
+        $this->assertNull($data->address);
+
+        $input = [
+            'type' => 'buyers',
+            'data' => null,
+        ];
+
+        $inputHandler = new TestNullableRecursiveInputHandler();
+        $inputHandler->bind($input);
+
+        $this->assertTrue($inputHandler->isValid());
+
+        $data = $inputHandler->getData('data');
+
+        $this->assertNull($data);
+    }
+
+    public function testInputHandlerOnCascade(): void
+    {
+        $input = [
+            'name' => 'A',
+            'age' => 18,
+            'gender' => 'male',
+            'birthday' => '2000-01-01',
+        ];
+
+        $inputHandler = new TestInputHandlerCascade();
+        $inputHandler->bind($input);
+
+        $this->assertTrue($inputHandler->isValid());
+    }
 }
 
 class TestConstraintOverrideType extends InputHandler
 {
-    public function define()
+    public function define(): void
     {
         $this->add('price', 'int', [
             'required' => true,
@@ -612,7 +815,7 @@ class TestConstraintOverrideType extends InputHandler
 
 class TestDatetimeNotValidatingDate extends InputHandler
 {
-    public function define()
+    public function define(): void
     {
         $this->add('date', 'datetime', [
             'required' => true,

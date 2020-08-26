@@ -44,9 +44,6 @@ class BaseNode
      */
     protected $required = true;
 
-    /**
-     * @var mixed
-     */
     protected $default;
 
     /**
@@ -72,41 +69,57 @@ class BaseNode
     public function setConstraints(array $constraints)
     {
         $this->constraints = $constraints;
+
+        return $this;
     }
 
-    public function addConstraint(ConstraintInterface $constraint)
+    public function addConstraint(ConstraintInterface $constraint): self
     {
         $this->constraints[] = $constraint;
+
+        return $this;
     }
 
-    public function addConstraints(array $constraints)
+    public function addConstraints(array $constraints): self
     {
         $this->constraints = array_merge($this->constraints, $constraints);
+
+        return $this;
     }
 
-    public function setTransformer(TransformerInterface $transformer)
+    public function setTransformer(TransformerInterface $transformer): self
     {
         $this->transformer = $transformer;
+
+        return $this;
     }
 
-    public function setInstantiator(InstantiatorInterface $instantiator)
+    public function setInstantiator(InstantiatorInterface $instantiator): self
     {
         $this->instantiator = $instantiator;
+
+        return $this;
     }
 
-    public function setTypeHandler(TypeHandler $typeHandler)
+    public function setTypeHandler(TypeHandler $typeHandler): self
     {
         $this->typeHandler = $typeHandler;
+
+        return $this;
     }
 
-    public function setType(string $type)
+    public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
     }
 
-    public function setTypeAlias(string $typeAlias)
+    public function setTypeAlias(string $typeAlias): self
     {
         $this->typeAlias = $typeAlias;
+
+        return $this;
     }
 
     public function getTypeAlias(): string
@@ -114,19 +127,25 @@ class BaseNode
         return $this->typeAlias;
     }
 
-    public function setRequired(bool $required)
+    public function setRequired(bool $required): self
     {
         $this->required = $required;
+
+        return $this;
     }
 
-    public function setDefault($default)
+    public function setDefault($default): self
     {
         $this->default = $default;
+
+        return $this;
     }
 
-    public function setAllowNull(bool $allowNull)
+    public function setAllowNull(bool $allowNull): self
     {
         $this->allowNull = $allowNull;
+
+        return $this;
     }
 
     public function getDefault()
@@ -163,17 +182,16 @@ class BaseNode
         return $this;
     }
 
-    public function add(string $key, string $type, array $options = []): BaseNode
+    public function add(string $key, string $type, array $options = [], InputHandler $handler = null): BaseNode
     {
         $child = $this->typeHandler->getType($type);
 
-        if (isset($options['handler'])) {
-            /** @var InputHandler $handler */
-            $handler = $options['handler'];
-            $handler->setRootType($type);
-            $handler->define();
+        if (isset($handler)) {
+            $child = $child->setHandler($handler, $type);
+        }
 
-            $child = $handler->getRoot();
+        if (isset($options['handler']) && !isset($handler)) {
+            $child = $child->setHandler($options['handler'], $type);
         }
 
         if (isset($options['required'])) {
@@ -209,7 +227,7 @@ class BaseNode
         return $child;
     }
 
-    public function remove(string $key)
+    public function remove(string $key): void
     {
         unset($this->children[$key]);
     }
@@ -258,11 +276,15 @@ class BaseNode
 
     public function walk($input)
     {
-        $result = [];
+        if (!is_array($input)) {
+            return $input;
+        }
 
         if (!$this->hasChildren()) {
             return $input;
         }
+
+        $result = [];
 
         foreach ($this->getChildren() as $field => $config) {
             if (!array_key_exists($field, $input)) {
@@ -283,12 +305,25 @@ class BaseNode
         return $result;
     }
 
-    protected function checkConstraints(string $field, $value)
+    protected function checkConstraints(string $field, $value): void
     {
         foreach ($this->constraints as $constraint) {
-            if (!$constraint->validate($value)) {
+            if (!$constraint->validate($value) && ($this->isRequired() || $this->checkIfFieldValueIsSpecified($value))) {
                 throw new InvalidConstraintException($constraint->getErrorMessage($field));
             }
         }
+    }
+
+    private function checkIfFieldValueIsSpecified($value): bool
+    {
+        return $this->type === 'string' || $this->type === 'array' ? !empty($value) : $value !== null;
+    }
+
+    private function setHandler(InputHandler $handler, string $type): self
+    {
+        $handler->setRootType($type);
+        $handler->define();
+
+        return $handler->getRoot();
     }
 }

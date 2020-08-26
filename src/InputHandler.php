@@ -36,12 +36,12 @@ abstract class InputHandler
         $this->root->setTypeHandler($this->typeHandler);
     }
 
-    public function add(string $key, string $type, array $options = []): BaseNode
+    public function add(string $key, string $type, array $options = [], InputHandler $handler = null): BaseNode
     {
-        return $this->root->add($key, $type, $options);
+        return $this->root->add($key, $type, $options, $handler);
     }
 
-    public function remove(string $key)
+    public function remove(string $key): void
     {
         $this->root->remove($key);
     }
@@ -51,7 +51,7 @@ abstract class InputHandler
         return $this->root;
     }
 
-    public function setRootType(string $type)
+    public function setRootType(string $type): void
     {
         $this->root = $this->typeHandler->getType($type);
     }
